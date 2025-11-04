@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Predicción por Lotes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+    html, body {
+        height: auto;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background: #8B0000;
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 40px auto;
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        min-height: 100vh; /* 🔹 asegura que el fondo blanco cubra toda la pantalla */
+    }
+
+    h2 {
+        text-align: center;
+        color: #333;
+    }
+
+    form {
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    label {
+        font-weight: 600;
+        color: #333;
+    }
+
+    input[type="file"], select {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+    }
+
+    .btn {
+        margin-top: 10px;
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 15px;
+        transition: background 0.2s;
+        text-decoration: none;
+        text-align: center;
+    }
+
+    .btn:hover {
+        background: #0056b3;
+    }
+
+    .volver {
+        display: block;
+        margin-top: 25px;
+        text-align: center;
+        color: #555;
+        text-decoration: none;
+    }
+
+    .mensajes p.success {
+        color: green;
+    }
+
+    .mensajes p.error {
+        color: red;
+    }
+
+    .tabla-container {
+        margin-top: 25px;
+        overflow-x: auto;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        max-height: 70vh; /* 🔹 ajusta altura para permitir scroll interno */
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+    th, td {
+        border: 1px solid #ccc;
+        padding: 6px 10px;
+        text-align: center;
+    }
+
+    th {
+        background: #f0f0f0;
+        position: sticky;
+        top: 0;
+        z-index: 2;
+    }
+
+    .metricas {
+        margin-top: 30px;
+        background: #f73c3c;
+        border-radius: 10px;
+        padding: 15px;
+        border: 1px solid #ddd;
+    }
+
+    .metricas h3 {
+        margin-bottom: 10px;
+        color: #333;
+    }
+
+    .metricas ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .metricas li {
+        padding: 5px 0;
+        font-size: 15px;
+    }
+
+    .matriz {
+        margin-top: 30px;
+        text-align: center;
+    }
+
+    .matriz img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🔮 Predicción por Lotes</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="mensajes">
+              {% for category, msg in messages %}
+                <p class="{{ category }}">{{ msg }}</p>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <form method="POST" enctype="multipart/form-data">
+            <label>📂 Subir archivo (.xls, .xlsx o .csv):</label>
+            <input type="file" name="dataset" accept=".xls,.xlsx,.csv" required>
+
+            <label>⚙️ Selecciona el modelo:</label>
+            <select name="modelo" required>
+                <option value="logistica">Regresión Logística</option>
+                <option value="rna">Red Neuronal Artificial</option>
+            </select>
+
+            <button type="submit" class="btn">Predecir</button>
+        </form>
+
+        {% if tabla %}
+            <div class="tabla-container">
+                {{ tabla|safe }}
+            </div>
+            <a href="{{ url_for('descargar_resultados') }}" class="btn">⬇️ Descargar resultados</a>
+        {% endif %}
+
+        {% if metricas %}
+        <div class="metricas">
+            <h3>Métricas - {{ model_name }}</h3>
+            <ul>
+                <li><b>Accuracy:</b> {{ metricas.accuracy }}%</li>
+                <li><b>Precision:</b> {{ metricas.precision }}%</li>
+                <li><b>Recall:</b> {{ metricas.recall }}%</li>
+                <li><b>F1-Score:</b> {{ metricas.f1 }}%</li>
+            </ul>
+        </div>
+        {% endif %}
+
+        {% if cm %}
+        <div class="matriz">
+            <h3>Matriz de Confusión</h3>
+            <img src="data:image/png;base64,{{ cm }}" alt="Matriz de Confusión">
+        </div>
+        {% endif %}
+
+        <a href="{{ url_for('index') }}" class="volver">← Volver al inicio</a>
+    </div>
+</body>
+</html>

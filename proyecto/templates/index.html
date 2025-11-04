@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Proyecto Analítica</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Canvas para las partículas -->
+    <canvas id="particles"></canvas>
+
+    <div class="container fade-in">
+        <h1>Proyecto <span>Analítica</span></h1>
+        <p class="subtitle">Selecciona el tipo de predicción:</p>
+    
+
+        <div class="botones">
+            <a href="{{ url_for('individual') }}" class="btn"> Predicción Individual</a>
+            <a href="{{ url_for('lotes') }}" class="btn btn-alt"> Predicción por Lotes</a>
+        </div>
+        
+    </div>
+
+    <script src="{{ url_for('static', filename='particles.js') }}"></script>
+</body>
+</html>
